@@ -1,4 +1,4 @@
-from gccrun import Project
+from cargs import Project
 
 def create_cmd(
 	compiler:str,

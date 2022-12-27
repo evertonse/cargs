@@ -8,7 +8,7 @@ import argparse as argp
 from collections import defaultdict
 
 
-from utils.color import bcolors
+import utils.color as color
 from utils.log import debug, set_project
 #from utils.package_test import package_setup
 from utils.file import content_of
@@ -83,10 +83,10 @@ def create_cmd(
 	compiler:str,
 	project:Project) -> str:
 	if compiler.lower() in {'msvc', 'cl'}:
-		debug(f"INFO: detected msvc build\n")
+		debug(f"INFO: detected msvc build")
 		return msvc.create_cmd('cl',project)
 	else:
-		debug(f"INFO: detected gcc build\n")
+		debug(f"INFO: detected gcc build")
 		return gcc.create_cmd('g++',project)
 
 def create_empty_build(path):
@@ -113,9 +113,7 @@ def process_commands():
 def __main__():
 	set_project(name=__filename__) # setting up dependencies
 
-	default_project_path = 'CyberXEngine.toml'
-	project_path = sys.argv[1] if len(sys.argv) > 1 else default_project_path
-	
+	project_path = sys.argv[1] if len(sys.argv) > 1 else exit(debug("Error: Where toml file?"))
 	debug(f"INFO: about to process args")
 	process_commands()
 
@@ -131,17 +129,17 @@ def __main__():
 		project =project
 	)
 	
-	debug(f"INFO: Building project from file : {bcolors.BLUE(project_path)}\n")
+	debug(f"INFO: Building project from file : {color.BLUE(project_path)}\n")
 	debug(f"INFO: Command Generated: {cmd}\n")
-	debug(f"INFO: Running project from file : {bcolors.BLUE(project_path)}\n")
+	debug(f"INFO: Running project from file : {color.BLUE(project_path)}\n")
 	
 	code = subprocess.run(cmd)
 	
 	if code.returncode == 0:
-		debug(f'INFO: {bcolors.GREEN("Compilation Succeded")} return code was zero, usually means success')
+		debug(f'INFO: {color.GREEN("Compilation Succeded")} return code was zero, usually means success')
 		subprocess.run(project.executable_path())
 	else:
-		debug(f'ERROR: {bcolors.RED("Compilation Failed")} return code was {bcolors.RED("non-zero")}, usually means bad things')
+		debug(f'ERROR: {color.RED("Compilation Failed")} return coUe was {color.ED("non-zero")}, usually means bad things')
 
 if __name__ == '__main__':
 	__main__()

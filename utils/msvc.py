@@ -11,9 +11,9 @@ def create_cmd(
 	version_flag  :str  = f'-std={version}' if version != "" else ""
 	common_flags = " -".join(['MTd','nologo'])
 
-	cmd += (" -O2 " if optimized else "-O0 -Zi")
-
 	cmd = f'{compiler} {version_flag} {common_flags}'
+	cmd += " -O2 " if optimized else "-O0 -Zi "
+
 	
 	for define in project.defines:
 		cmd += f' -D{define} '
