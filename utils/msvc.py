@@ -33,6 +33,6 @@ def create_cmd(
 	cmd += f' -link '
 
 	for folder in project.libdirs:
-		cmd += f' -LIBPATH: {Path(folder)} '
+		cmd += f' -LIBPATH:{Path(folder)} '
 
 	return cmd
