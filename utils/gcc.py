@@ -1,5 +1,7 @@
 from cargs import Project
 
+from pathlib import PurePath as Path
+
 def create_cmd(
 	compiler:str,
 	project) -> str:
@@ -12,14 +14,14 @@ def create_cmd(
 	cmd = f'{compiler} {version_flag}'
 
 	for file in project.srcfiles:
-		cmd += f' ./{file} '
+		cmd += f' {Path(file)} '
 		
 
 	for folder in project.includedirs:
-		cmd += f' -I{folder} '
+		cmd += f' -I{Path(folder)} '
 
 	for folder in project.libdirs:
-		cmd += f' -L{folder} '
+		cmd += f' -L{Path(folder)} '
 
 	for warning in project.warnings:
 		cmd += f' -W{warning} '

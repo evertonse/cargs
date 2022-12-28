@@ -6,7 +6,7 @@ import subprocess
 import tomllib as toml
 import argparse as argp
 from collections import defaultdict
-
+from utils.system_utils import pushd
 
 import utils.color as color
 from utils.log import debug, set_project
@@ -54,27 +54,37 @@ class Project():
 #<<=========================================================================================================
 #<<=========================================================================================================
 
-  def __init__(self,toml_dict) -> None:
+  def __init__(self,toml_dict, use_abs_paths=False) -> None:
     self.__dict__ = toml_dict
     self.binpath = Path(PurePath('./'+ toml_dict['binpath']))
     self.binpath.mkdir(parents=True,exist_ok=True)
+    
     self.add_src_files()
+    if use_abs_paths == True:
+      self.use_abs = True
+      self.srcfiles    = [Path(f).resolve() for f in self.srcfiles] 
+      self.includedirs = [Path(f).resolve() for f in self.includedirs] 
+      self.libdirs     = [Path(f).resolve() for f in self.libdirs] 
+      #self.libfiles    = [Path(f).resolve() for f in self.libfiles] 
+    
 
   # // TODO(Everton): "ADD Regex to this"
   def add_src_files(self):
-    for srcfile in list(self.srcfiles):
+    for srcfile in list([str(f) for f in self.srcfiles]):
       if srcfile.endswith("**"):
         
         srcdir = srcfile[:len(srcfile)-2]
         for file in os.listdir(srcdir):
           if file.endswith(".cpp") or file.endswith(".c"):
-            self.srcfiles.append(os.path.join(srcdir, file))
+            self.srcfiles.append(Path(srcdir, file))
         
         self.srcfiles.remove(srcfile)
 
   def executable_path(self):
-    return str(PurePath(self.binpath,self.name))
-
+    if self.use_abs:
+      return str(Path(self.binpath,self.name).resolve())
+    return str(Path(self.binpath,self.name))
+  
 # cdir = os.getcwd() # it will return current working directory
 # print("Previous_dir",cdir)
 
@@ -123,11 +133,13 @@ def __main__():
 
   with open(project_path, "rb") as f:
     data	 	= defaultdict(lambda:"",toml.load(f))
-    project = Project(data)
+    project = Project(data, use_abs_paths=True)
   
   config = {
     "compiler" : project.compiler if project is not None else 'g++', 
   }
+  
+  debug(f"INFO: Current Working Directory :  {color.BLUE(os.getcwd())}")
   cmd = create_cmd(
     compiler=config['compiler'],
     project =project
@@ -137,11 +149,14 @@ def __main__():
   debug(f"INFO: Command Generated: {cmd}")
   debug(f"INFO: Running project from file : {color.BLUE(project_path)}")
   
-  code = subprocess.run(cmd)
+  with pushd(project.binpath):
+    code = subprocess.run(cmd)
   
   if code.returncode == 0:
     debug(f'INFO: {color.GREEN("Compilation Succeded")} return code was zero, usually means success')
-    subprocess.run(project.executable_path())
+    debug(f'INFO: Running {color.BLUE(project.executable_path())}')
+    os.startfile(project.executable_path())
+    #subprocess.run(project.executable_path())
   else:
     debug(f'ERROR: {color.RED("Compilation Failed")} return code was {color.RED("non-zero")}, usually means bad things')
 

@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import PurePath as Path
 
 def create_cmd(
 	compiler:str,
@@ -12,6 +12,7 @@ def create_cmd(
 	common_flags ="-"+" -".join(['MTd ' if not optimized else 'MT ','nologo '])
 
 	cmd = f'{compiler} {version_flag} {common_flags}'
+	cmd += f' -Fe:{project.executable_path()} '
 	cmd += " -O2 " if optimized else " -Od -Zi "
 
 	
