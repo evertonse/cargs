@@ -62,9 +62,10 @@ class Project():
     self.add_src_files()
     if use_abs_paths == True:
       self.use_abs = True
-      self.srcfiles    = [Path(f).resolve() for f in self.srcfiles] 
-      self.includedirs = [Path(f).resolve() for f in self.includedirs] 
-      self.libdirs     = [Path(f).resolve() for f in self.libdirs] 
+
+      self.srcfiles    = [f'"{Path(f).resolve()}"' if " " in str(Path(f).resolve()) + f"{print(f)}"else Path(f).resolve() for f in self.srcfiles] 
+      self.includedirs = [f'"{Path(f).resolve()}"' if " " in str(Path(f).resolve()) else Path(f).resolve() for f in self.includedirs] 
+      self.libdirs     = [f'"{Path(f).resolve()}"' if " " in str(Path(f).resolve()) else Path(f).resolve() for f in self.libdirs] 
       #self.libfiles    = [Path(f).resolve() for f in self.libfiles] 
     
 
@@ -82,7 +83,7 @@ class Project():
 
   def executable_path(self):
     if self.use_abs:
-      return str(Path(self.binpath,self.name).resolve())
+      return '"' + str(Path(self.binpath,self.name).resolve()) + '"' 
     return str(Path(self.binpath,self.name))
   
 # cdir = os.getcwd() # it will return current working directory
@@ -147,7 +148,6 @@ def __main__():
   
   debug(f"INFO: Building project from file : {color.BLUE(project_path)}")
   debug(f"INFO: Command Generated: {cmd}")
-  debug(f"INFO: Running project from file : {color.BLUE(project_path)}")
   
   with pushd(project.binpath):
     code = subprocess.run(cmd)

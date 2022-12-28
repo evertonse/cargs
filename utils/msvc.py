@@ -1,5 +1,4 @@
 from pathlib import PurePath as Path
-
 def create_cmd(
 	compiler:str,
 	project) -> str:
@@ -13,6 +12,9 @@ def create_cmd(
 
 	cmd = f'{compiler} {version_flag} {common_flags}'
 	cmd += f' -Fe:{project.executable_path()} '
+  
+  #/ZI option is similar to /Zi, but it produces a PDB file in a format that supports the Edit and Continue feature. 
+  #/Z7 option produces object files that also contain full symbolic debugging information for use with the debugger.
 	cmd += " -O2 " if optimized else " -Od -Zi "
 
 	
