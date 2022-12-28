@@ -120,37 +120,38 @@ def create_empty_build(path):
     debug(f"INFO: {build_default_name} already exists, nothing was done.")
 
 def process_help():
+  cargs_help = {
+    "init | start"  : "create an default build.toml file",
+    "-h  | --help"  : "show help :P",
+    "-d  | --debug ": "show debug information"
+  }
+  
   debug(
     f"\nC/C++ (C)ompiler (Args) automation with cargs.py\n" + 
     f"Usage: cargs.py [ <options> ] <toml file>\n" + 
     f"Options:\n  " + 
-    "\n  ".join([ s[0].ljust(25) + s[1] for s in  [
-        ("init | start", "create an default build.toml file"),
-        ("-h  | --help", "show help :P"),
-        ("-h  | --help", "show help :P")
-      ]
-    ])
+    "\n  ".join([ s[0].ljust(25) + s[1] for s in  cargs_help.items()])
   )
 def process_commands():
   if len(sys.argv) == 1:
     exit(debug("Error: Where toml at?"))
-    process_help()
   
-  if len(sys.argv) > 1:
+  elif len(sys.argv) > 1:
     if sys.argv[1].lower() in {'init','start'} :
       create_empty_build('')
-      exit(0)
     elif sys.argv[1].lower() in {'-h','--help'} :
       process_help()
-      exit(0)
+    elif sys.argv[1].lower() in {'--debug','-d'} :
+      debug("Args below:")
+      for i,arg in enumerate(sys.argv):
+        print(f'{i:>5}th arg: {arg}')     
     else:
-      process_build_file()
-    
-def process_build_file():
-  project_path = sys.argv[1] 
-  
-  debug(f"INFO: about to process args")
+      process_build_file(sys.argv[1])
+  else:
+    exit(debug("Error: cargs doesn't support > 2 args right now ! sorry."))
 
+def process_build_file(project_path:str ):
+  project_path = sys.argv[1] 
   with open(project_path, "rb") as f:
     data	 	= defaultdict(lambda:"",toml.load(f))
     project = Project(data, use_abs_paths=True)
