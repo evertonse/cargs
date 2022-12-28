@@ -1,0 +1,4 @@
+- [ ] Fix unecessary slashes
+- [ ] Better error messages
+- [ ] Better fix the quotes situations
+- [ ]

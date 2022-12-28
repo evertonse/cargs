@@ -63,9 +63,9 @@ class Project():
     if use_abs_paths == True:
       self.use_abs = True
 
-      self.srcfiles    = [f'"{Path(f).resolve()}"' if " " in str(Path(f).resolve()) + f"{print(f)}"else Path(f).resolve() for f in self.srcfiles] 
-      self.includedirs = [f'"{Path(f).resolve()}"' if " " in str(Path(f).resolve()) else Path(f).resolve() for f in self.includedirs] 
-      self.libdirs     = [f'"{Path(f).resolve()}"' if " " in str(Path(f).resolve()) else Path(f).resolve() for f in self.libdirs] 
+      self.srcfiles    = [f'"{Path(f).resolve()}"' for f in self.srcfiles] 
+      self.includedirs = [f'"{Path(f).resolve()}"' for f in self.includedirs] 
+      self.libdirs     = [f'"{Path(f).resolve()}"' for f in self.libdirs] 
       #self.libfiles    = [Path(f).resolve() for f in self.libfiles] 
     
 
