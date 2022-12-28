@@ -1,5 +1,11 @@
 # How to Use
+- Create toml project
 
-``$ gccrun project.toml ``
+``$ cargs project.toml ``
 
-look examples
+- Fill in the srcfiles and everything that you need on the toml generated.
+
+- Gerenate the Compiler command with the necessary Arguments
+
+``$ cargs project.toml ``
+
