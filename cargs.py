@@ -119,18 +119,37 @@ def create_empty_build(path):
   else: 
     debug(f"INFO: {build_default_name} already exists, nothing was done.")
 
+def process_help():
+  debug(
+    f"\nC/C++ (C)ompiler (Args) automation with cargs.py\n" + 
+    f"Usage: cargs.py [ <options> ] <toml file>\n" + 
+    f"Options:\n  " + 
+    "\n  ".join([ s[0].ljust(25) + s[1] for s in  [
+        ("init | start", "create an default build.toml file"),
+        ("-h  | --help", "show help :P"),
+        ("-h  | --help", "show help :P")
+      ]
+    ])
+  )
 def process_commands():
+  if len(sys.argv) == 1:
+    exit(debug("Error: Where toml at?"))
+    process_help()
+  
   if len(sys.argv) > 1:
     if sys.argv[1].lower() in {'init','start'} :
       create_empty_build('')
       exit(0)
-
-def __main__():
-  set_project(name=__filename__) # setting up dependencies
-
-  project_path = sys.argv[1] if len(sys.argv) > 1 else exit(debug("Error: Where toml at?"))
+    elif sys.argv[1].lower() in {'-h','--help'} :
+      process_help()
+      exit(0)
+    else:
+      process_build_file()
+    
+def process_build_file():
+  project_path = sys.argv[1] 
+  
   debug(f"INFO: about to process args")
-  process_commands()
 
   with open(project_path, "rb") as f:
     data	 	= defaultdict(lambda:"",toml.load(f))
@@ -159,6 +178,13 @@ def __main__():
     #subprocess.run(project.executable_path())
   else:
     debug(f'ERROR: {color.RED("Compilation Failed")} return code was {color.RED("non-zero")}, usually means bad things')
+
+
+def __main__():
+  set_project(name=__filename__) # setting up dependencies
+  debug(f"INFO: about to process args")
+  process_commands()
+  
 
 if __name__ == '__main__':
   __main__()
