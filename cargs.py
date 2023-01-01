@@ -62,7 +62,6 @@ class Project():
     self.add_src_files()
     if use_abs_paths == True:
       self.use_abs = True
-
       self.srcfiles    = [f'"{Path(f).resolve()}"' for f in self.srcfiles] 
       self.includedirs = [f'"{Path(f).resolve()}"' for f in self.includedirs] 
       self.libdirs     = [f'"{Path(f).resolve()}"' for f in self.libdirs] 
