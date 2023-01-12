@@ -11,3 +11,11 @@ def pushd(new_dir):
   finally:
       os.chdir(previous_dir)
 #You can then use it like the following:
+
+import subprocess
+def executable(exe:str):
+  try:
+    subprocess.call([exe, '--version'])
+    return True
+  except OSError:
+    return False

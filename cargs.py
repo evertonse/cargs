@@ -1,21 +1,19 @@
 import sys
-from dataclasses import dataclass
-from pathlib import Path, PurePath
 import os
-import subprocess
-import tomllib as toml
-import argparse as argp
-from collections import defaultdict
-from utils.system_utils import pushd
+from pathlib import Path
 
-import utils.color as color
 from utils.log import debug, set_project
 #from utils.package_test import package_setup
 from utils.file import content_of
+from utils.system_utils import pushd, executable
 
-
+from utils import color
 from utils import gcc
 from utils import msvc
+from lsp import clangd
+
+from project import Project
+import subprocess
 
 __dir_path__ = os.path.dirname(os.path.realpath(__file__))
 __filename__,_ =  __file__[__file__.rindex('\\')+1:].rsplit('.',1)
@@ -28,71 +26,12 @@ __filename__,_ =  __file__[__file__.rindex('\\')+1:].rsplit('.',1)
 # 	Create a toml files as your project config
 # 	Define **ALL** variables listed in the class Project bellow, 
 # 	Then populate with the desired values using the type indicated below
-@dataclass
-class Project():
-  name: str 
-
-  compiler: str		# can optionally use full path
-  language: str  	# ignored for now
-  version : str
-  binpath : str # directory for binaries, if
-  
-  # -O
-  optimize: str
-  
-  srcfiles 		: list[str]
-  # -D
-  defines 		: list[str]
-  # -I
-  includedirs	: list[str]
-  # -L
-  libdirs 		: list[str]
-  # -l
-  libfiles 		: list[str]
-  # -W
-  warnings 		: list[str]
-#<<=========================================================================================================
-#<<=========================================================================================================
-
-  def __init__(self,toml_dict, use_abs_paths=False) -> None:
-    self.__dict__ = toml_dict
-    self.binpath = Path(PurePath('./'+ toml_dict['binpath']))
-    self.binpath.mkdir(parents=True,exist_ok=True)
-    
-    self.add_src_files()
-    if use_abs_paths == True:
-      self.use_abs = True
-
-      self.srcfiles    = [f'"{Path(f).resolve()}"' for f in self.srcfiles] 
-      self.includedirs = [f'"{Path(f).resolve()}"' for f in self.includedirs] 
-      self.libdirs     = [f'"{Path(f).resolve()}"' for f in self.libdirs] 
-      #self.libfiles    = [Path(f).resolve() for f in self.libfiles] 
-    
-
-  # // TODO(Everton): "ADD Regex to this"
-  def add_src_files(self):
-    for srcfile in list([str(f) for f in self.srcfiles]):
-      if srcfile.endswith("**"):
-        
-        srcdir = srcfile[:len(srcfile)-2]
-        for file in os.listdir(srcdir):
-          if file.endswith(".cpp") or file.endswith(".c"):
-            self.srcfiles.append(Path(srcdir, file))
-        
-        self.srcfiles.remove(srcfile)
-
-  def executable_path(self):
-    if self.use_abs:
-      return '"' + str(Path(self.binpath,self.name).resolve()) + '"' 
-    return str(Path(self.binpath,self.name))
-  
 # cdir = os.getcwd() # it will return current working directory
 # print("Previous_dir",cdir)
 
 # # Previous_dir C:\Users\..\Desktop\python
 # os.chdir('./..') #chdir used for change direcotry
 # print("Current_dir",cdir)
-
 
 def create_cmd(
   compiler:str,
@@ -123,7 +62,8 @@ def process_help():
   cargs_help = {
     "init | start"  : "create an default build.toml file",
     "-h  | --help"  : "show help :P",
-    "-d  | --debug ": "show debug information"
+    "-d  | --debug ": "show debug information",
+    "--clangd "     : "generate clangd lsp config file (compile_commands.json)",
   }
   
   debug(
@@ -139,23 +79,32 @@ def process_commands():
   elif len(sys.argv) > 1:
     if sys.argv[1].lower() in {'init','start'} :
       create_empty_build('')
+
     elif sys.argv[1].lower() in {'-h','--help'} :
       process_help()
+
     elif sys.argv[1].lower() in {'--debug','-d'} :
       debug("Args below:")
       for i,arg in enumerate(sys.argv):
         print(f'{i:>5}th arg: {arg}')     
+
+    elif sys.argv[1].lower() in {'--clangd'} :
+      project = Project.from_path(sys.argv[2], abs_path=False)
+      compile_commands:str = clangd.create_config_file(project)
+      compiler_commands_path :str = Path(project.workingdir,'compile_commands.json') 
+      with open(compiler_commands_path , 'w+') as config_file:
+        config_file.write(compile_commands)
+      debug(f"DEBUG: Compiler Info for clangd create at {compiler_commands_path}")
+    
     else:
+      debug(f"INFO: processing project files")
       process_build_file(sys.argv[1])
   else:
     exit(debug("Error: cargs doesn't support > 2 args right now ! sorry."))
-
-def process_build_file(project_path:str ):
-  project_path = sys.argv[1] 
-  with open(project_path, "rb") as f:
-    data	 	= defaultdict(lambda:"",toml.load(f))
-    project = Project(data, use_abs_paths=True)
   
+def process_build_file(project_path:str ):
+  project = Project.from_path(project_path, abs_path=True)
+
   config = {
     "compiler" : project.compiler if project is not None else 'g++', 
   }
@@ -169,6 +118,10 @@ def process_build_file(project_path:str ):
   debug(f"INFO: Building project from file : {color.BLUE(project_path)}")
   debug(f"INFO: Command Generated: {cmd}")
   
+  compiler_executale,_ = cmd.split(" ", 1) 
+  if not executable(compiler_executale):
+    debug(f"ERROR: {color.RED(compiler_executale)} ain't no executable. Maybe it's not in the PATH?")
+    exit(1)
   with pushd(project.binpath):
     code = subprocess.run(cmd)
   

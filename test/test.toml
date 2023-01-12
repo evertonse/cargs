@@ -1,5 +1,5 @@
 
-name = "gui_test"
+name = "test"
 compiler = "gcc"		# can optionally use full path
 version = ""
 #-O
@@ -9,9 +9,6 @@ binpath = "build/test/bin"
 
 srcfiles = [
 	"src/graphics/gui.cpp",
-######## ->LIBS LAST<- ########
-	#"vendor/glad-compatibility/src/**",
-	"vendor/glad/src/**",
 ]
 
 # -D
@@ -21,7 +18,6 @@ defines = [
 
 # -I
 includedirs = [
-	#"vendor/glad-compatibility/include",
 	"vendor/glad/include",
 	"vendor/SDL/include",
 	"vendor/STB_IMAGE/include",
@@ -39,15 +35,12 @@ libdirs = [
 
 # -l
 libfiles = [
-	#"mingw32",
 	"SDL2main",
 	"SDL2",
 	"opengl32",
-	"m"
 ]
 
 # -W
 warnings = [
 	'no-narrowing'
-	#'all'
 ]
