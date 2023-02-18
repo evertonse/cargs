@@ -1,4 +1,4 @@
-from cargs import Project
+from project import Project
 
 from pathlib import PurePath as Path
 

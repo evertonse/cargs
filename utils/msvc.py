@@ -1,3 +1,5 @@
+from project import Project
+
 from pathlib import PurePath as Path
 def create_cmd(
 	compiler:str,
