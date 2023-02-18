@@ -8,8 +8,8 @@ from utils.file import content_of
 from utils.system_utils import pushd, executable
 
 from utils import color
-from utils import gcc
-from utils import msvc
+from utils import msvc,clang,gcc
+
 from lsp import clangd
 
 from project import Project
@@ -39,6 +39,10 @@ def create_cmd(
   if compiler.lower() in {'msvc', 'cl'}:
     debug(f"INFO: detected msvc build")
     return msvc.create_cmd('cl',project)
+
+  elif compiler.lower() in {'clang', 'clang++'}:
+    debug(f"INFO: detected clang build")
+    return clang.create_cmd(project.compiler,project)
   else:
     debug(f"INFO: detected gcc build")
     return gcc.create_cmd('g++',project)
@@ -139,6 +143,6 @@ def __main__():
   debug(f"INFO: about to process args")
   process_commands()
   
-
+scary_global = 2
 if __name__ == '__main__':
   __main__()
