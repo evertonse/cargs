@@ -9,7 +9,7 @@ def create_config_file(project : Project) -> str:
 [
     {{
         "directory":"{directory}",
-        "command" : "g++  {' '.join(defines)} {' '.join(relative_includes)}",
+        "command" : "{project.compiler}  {' '.join(defines)} {' '.join(relative_includes)}",
         "file": ""
     }}
 ]
