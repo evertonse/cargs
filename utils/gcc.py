@@ -2,37 +2,37 @@ from project import Project
 
 from pathlib import PurePath as Path
 
-def create_cmd(
-	compiler:str,
-	project) -> str:
-	
-	version  :str  = project.version.lower() if project.version else ""
-	optimized :bool = True if project.optimize == "on" else False
 
-	version_flag  :str  = f'-std={version}' if version != "" else ""
-	
-	cmd = f'{compiler} {version_flag}'
+def create_cmd(compiler: str, project) -> str:
 
-	for file in project.srcfiles:
-		cmd += f' {Path(file)} '
-		
+    version: str = project.version.lower() if project.version else ""
+    optimized: bool = True if project.optimize == "on" else False
+    debug: bool = True if project.debug == "on" else False
 
-	for folder in project.includedirs:
-		cmd += f' -I{Path(folder)} '
+    version_flag: str = f"-std={version}" if version != "" else ""
 
-	for folder in project.libdirs:
-		cmd += f' -L{Path(folder)} '
+    cmd = f"{compiler} {version_flag}"
 
-	for warning in project.warnings:
-		cmd += f' -W{warning} '
-	
-	for define in project.defines:
-		cmd += f' -D{define} '
+    for file in project.srcfiles:
+        cmd += f" {Path(file)} "
 
-	for file in project.libfiles:
-		cmd += f' -l{file} '
-		
-	cmd += (" -O3 " if optimized else "-O0 ")
-	cmd += f'-o{project.executable_path()}'
+    for folder in project.includedirs:
+        cmd += f" -I{Path(folder)} "
 
-	return cmd
+    for folder in project.libdirs:
+        cmd += f" -L{Path(folder)} "
+
+    for warning in project.warnings:
+        cmd += f" -W{warning} "
+
+    for define in project.defines:
+        cmd += f" -D{define} "
+
+    for file in project.libfiles:
+        cmd += f" -l{file} "
+
+    cmd += " -O3 " if optimized else "-O0 "
+    cmd += " -g " if debug else " -g0 "
+    cmd += f"-o{project.executable_path()}"
+
+    return cmd

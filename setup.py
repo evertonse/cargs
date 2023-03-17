@@ -7,4 +7,4 @@ setup(name='c',
       author_email='evertonse.junior@gmail.com',
       packages=['pathlib','tomllib'],
       install_requires=['pathlib','tomllib'],
-		)
+)

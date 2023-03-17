@@ -1,21 +1,29 @@
+name      = "App"
+compiler  = "clang++"
+version   = "c++17"
 
-name = "your_project_name"
-compiler = "gcc"		# can optionally use full path
-version = ""
 #-O
+#optimize = "off"
 optimize = "off"
+
+#debug = "on"
+debug = "off"
 
 binpath = "build/"
 
 srcfiles = [
+	"src/*"
 ]
 
 # -D
 defines = [
+	"_CRT_SECURE_NO_WARNINGS",
 ]
 
 # -I
 includedirs = [
+  "src/", 
+  "vendor/", 
 ]
 
 # -L
@@ -24,6 +32,8 @@ libdirs = [
 
 # -l
 libfiles = [
+  #"user32",
+  #"gdi32"
 ]
 
 # -W

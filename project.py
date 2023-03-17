@@ -12,17 +12,20 @@ from collections import defaultdict
 
 
 class Project():
-    name: str
+    name: str = 'default_name'
 
-    compiler: str		# can optionally use full path
-    language: str  	# ignored for now
-    version: str
+    compiler: str = 'gcc'		# can optionally use full path
+    language: str = 'cpp'  	# ignored for now
+    version: str = 'c+17'
     binpath: str  # directory for binaries, if
 
-    workingdir: Path  # workingdir
+    workingdir: Path = Path('./')  # workingdir
 
     # -O
-    optimize: str
+    optimize: str = 'off'
+
+    # -g
+    debug: str = 'off'
 
     srcfiles: list[str]
     # -D
@@ -40,6 +43,7 @@ class Project():
 # <<=========================================================================================================
     def __init__(self, toml_dict, abs_path=False) -> None:
         self.__dict__ = toml_dict
+        print(f"project src files => {self.srcfiles}")
         self.binpath = Path(PurePath('./' + toml_dict['binpath']))
         self.binpath.mkdir(parents=True, exist_ok=True)
         # resolving paths, wild cards
@@ -76,15 +80,12 @@ class Project():
     # // TODO(Everton): "ADD Regex to this"
     # // TODO(Everton): "ADD Regex to this"
     def add_src_files(self):
-        for srcfile in list([str(f) for f in self.srcfiles]):
-            if srcfile.endswith("*"):
-
-                srcdir = srcfile[:len(srcfile)-2]
-                for file in os.listdir(srcdir):
-                    if file.endswith(".cpp") or file.endswith(".c"):
-                        self.srcfiles.append(Path(srcdir, file))
-
-                self.srcfiles.remove(srcfile)
+        resolved_srcfiles = list()
+        for srcfile in self.srcfiles.copy():
+            print(f"project src files => {srcfile}")
+            for resolved_file in glob(srcfile, recursive=True):
+                resolved_srcfiles.append(Path(resolved_file))
+        self.srcfiles = resolved_srcfiles
 
     def add_include_dirs(self):
         resolved_includedirs = []
