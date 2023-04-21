@@ -93,7 +93,7 @@ class Project():
             for resolved_dir in glob(dir + '/' if not dir.endswith('/') else dir, recursive=True):
                 resolved_dir = Path(resolved_dir) 
                 if resolved_dir.is_dir():
-                    resolved_includedirs.append()
+                    resolved_includedirs.append(resolved_dir)
         self.includedirs = resolved_includedirs
 
     def executable_path(self):
