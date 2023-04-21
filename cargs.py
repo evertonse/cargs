@@ -9,7 +9,7 @@ from utils.file import content_of
 from utils.system_utils import pushd, executable
 
 from utils import color
-from utils import msvc, clang, gcc
+from compiler import msvc, clang, gcc
 
 from lsp import clangd
 
