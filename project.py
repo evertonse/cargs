@@ -84,8 +84,8 @@ class Project():
         for srcfile in self.srcfiles.copy():
             print(f"project src files => {srcfile}")
             for resolved_file in glob(srcfile, recursive=True):
-                resolved_dir = Path(resolved_dir) 
-                if not resolved_dir.is_dir():
+                resolved_file = Path(resolved_file) 
+                if not resolved_file.is_dir():
                     resolved_srcfiles.append(Path(resolved_file))
         self.srcfiles = resolved_srcfiles
 
