@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import sys
 import os
 from pathlib import Path
@@ -17,7 +18,7 @@ from project import Project
 import subprocess
 
 __dir_path__ = os.path.dirname(os.path.realpath(__file__))
-__filename__, _ = __file__[__file__.rindex("\\") + 1:].rsplit(".", 1)
+__filename__ = os.path.basename(__file__)
 
 # >>========================================================================================================
 # >>=============================================CONFIG PROEJCT=============================================
@@ -116,6 +117,7 @@ def process_commands():
 
 def process_build_file(project_path: str):
     project = Project.from_path(project_path, abs_path=True)
+    
 
     config = {
         "compiler": project.compiler if project is not None else "g++",
@@ -124,7 +126,7 @@ def process_build_file(project_path: str):
     debug(f"INFO: Current Working Directory :  {color.BLUE(os.getcwd())}")
     cmd = create_cmd(compiler=config["compiler"], project=project)
 
-    debug(f"INFO: Building project from file : {color.BLUE(project_path)}")
+    debug(f"INFO: Buioding project from file : {color.BLUE(project_path)}")
     debug(f"INFO: Command Generated: {cmd}")
 
     compiler_executale, _ = cmd.split(" ", 1)

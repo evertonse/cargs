@@ -1,9 +1,14 @@
 from dataclasses import dataclass
 from pathlib import Path, PurePath
 from glob import glob
+from utils.log import debug
 import os
-import tomllib as toml
-
+try:
+    import tomllib as toml
+    tomllib_available = True 
+except:
+    tomllib_available = False
+    
 from collections import defaultdict
 
 #from utils.package_test import package_setup
@@ -27,17 +32,17 @@ class Project():
     # -g
     debug: str = 'off'
 
-    srcfiles: list[str]
+    srcfiles: list
     # -D
-    defines: list[str]
+    defines: list
     # -I
-    includedirs: list[str]
+    includedirs: list
     # -L
-    libdirs: list[str]
+    libdirs: list
     # -l
-    libfiles: list[str]
+    libfiles: list
     # -W
-    warnings: list[str]
+    warnings: list
 
 # <<=========================================================================================================
 # <<=========================================================================================================
@@ -66,9 +71,21 @@ class Project():
 
     @classmethod
     def from_path(cls, project_path, abs_path=False) -> None:
-        print(project_path)
+        debug(project_path)
         with open(str(project_path), "rb") as f:
-            data = defaultdict(lambda: "", toml.load(f))
+            if tomllib_available:
+                data = defaultdict(lambda: "", toml.load(f))
+            else:
+                cmds = [
+                    "python -m pip install --upgrade pip",
+                    "python3 -m pip install --upgrade pip",
+                    "python -m pip install --upgrade python",
+                    "python3 -m pip install --upgrade python",
+                ]
+
+                debug("tomllib is not available, sorry you can ge1t it by upgranding to python 3.11")
+                debug(" or 'pip install tomllib'")
+                exit(1)
             project = cls(data, abs_path)
         return project
 
