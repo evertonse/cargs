@@ -83,7 +83,7 @@ def process_help():
 
 def process_commands():
     if len(sys.argv) == 1:
-        exit(debug("Error: Where toml at?"))
+        exit(debug("Error: Where .toml at? Use cargs init"))
 
     elif len(sys.argv) > 1:
         if sys.argv[1].lower() in {"init", "start"}:
@@ -108,6 +108,10 @@ def process_commands():
             debug(
                 f"DEBUG: Compiler Info for clangd create at {compiler_commands_path}")
 
+        elif sys.argv[1].lower() in {"--autorun"}:
+            debug(f"INFO: processing project files and auto running after build")
+            process_build_file(sys.argv[2],autorun=True)
+
         else:
             debug(f"INFO: processing project files")
             process_build_file(sys.argv[1])
@@ -115,7 +119,7 @@ def process_commands():
         exit(debug("Error: cargs doesn't support > 2 args right now ! sorry."))
 
 
-def process_build_file(project_path: str):
+def process_build_file(project_path: str, autorun=False):
     project = Project.from_path(project_path, abs_path=True)
     
 
@@ -142,9 +146,10 @@ def process_build_file(project_path: str):
         debug(
             f'INFO: {color.GREEN("Compilation Succeded")} return code was zero, usually means success'
         )
-        debug(f"INFO: Running {color.BLUE(project.executable_path())}")
-        os.startfile(project.executable_path())
-        # subprocess.run(project.executable_path())
+        if autorun:
+            debug(f"INFO: Running {color.BLUE(project.executable_path())}")
+            os.startfile(project.executable_path())
+            # subprocess.run(project.executable_path())
     else:
         debug(
             f'ERROR: {color.RED("Compilation Failed")} return code was {color.RED("non-zero")}, usually means bad things'
